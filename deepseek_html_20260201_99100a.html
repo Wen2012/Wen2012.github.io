@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阅读理解练习系统 - 中国非正规回收者</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 左侧文章区域 */
+        .article-section {
+            flex: 1;
+            background-color: #fff;
+            padding: 25px;
+            overflow-y: auto;
+            border-right: 1px solid #e1e5e9;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+        
+        .article-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            font-size: 1.8rem;
+        }
+        
+        .article-subtitle {
+            color: #7f8c8d;
+            font-style: italic;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+        
+        .paragraph {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .paragraph:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .paragraph-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            margin-right: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .paragraph-number:hover {
+            background-color: #2980b9;
+            transform: scale(1.1);
+        }
+        
+        .paragraph.active {
+            background-color: #e8f4fc;
+            border-left: 4px solid #3498db;
+        }
+        
+        .paragraph-text {
+            display: inline;
+            font-size: 1.05rem;
+        }
+        
+        /* 右侧问题区域 */
+        .questions-section {
+            flex: 1.2;
+            background-color: #f8f9fa;
+            padding: 25px;
+            overflow-y: auto;
+            height: 100vh;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e74c3c;
+            font-size: 1.6rem;
+        }
+        
+        .question-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid #3498db;
+        }
+        
+        .question-container.highlighted {
+            border-left: 4px solid #e74c3c;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.2);
+            background-color: #fff9f9;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+        
+        .question-type {
+            background-color: #ecf0f1;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .question-text {
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+        }
+        
+        .options-container {
+            margin: 15px 0;
+        }
+        
+        .option {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e1e5e9;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover {
+            background-color: #edf2f7;
+        }
+        
+        .option.selected {
+            background-color: #d6eaf8;
+            border-color: #3498db;
+        }
+        
+        .option.correct {
+            background-color: #d5f4e6;
+            border-color: #2ecc71;
+        }
+        
+        .option.incorrect {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+        }
+        
+        .input-answer {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        
+        /* 控制按钮区域 */
+        .controls-section {
+            padding: 20px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .score-display {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        
+        /* 分析报告区域 */
+        .report-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .report-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #9b59b6;
+            font-size: 1.5rem;
+        }
+        
+        .report-summary {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        
+        .report-category {
+            margin-bottom: 25px;
+        }
+        
+        .category-title {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .category-title::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .review-needed .category-title::before {
+            background-color: #e74c3c;
+        }
+        
+        .difficult .category-title::before {
+            background-color: #f39c12;
+        }
+        
+        .well-done .category-title::before {
+            background-color: #2ecc71;
+        }
+        
+        .question-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .question-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .review-needed .question-badge {
+            background-color: #fadbd8;
+            color: #c0392b;
+        }
+        
+        .difficult .question-badge {
+            background-color: #fef5e7;
+            color: #d35400;
+        }
+        
+        .well-done .question-badge {
+            background-color: #d5f4e6;
+            color: #27ae60;
+        }
+        
+        .hint {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .article-section, .questions-section {
+                height: auto;
+                position: static;
+            }
+            
+            .article-section {
+                border-right: none;
+                border-bottom: 1px solid #e1e5e9;
+                max-height: 60vh;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .controls-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .question-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧文章区域 -->
+        <div class="article-section">
+            <h1 class="article-title">China's army of irregular recyclers face scrapheap (2012 pp)</h1>
+            <p class="article-subtitle">Unlicensed rubbish collectors are frowned on, despite helping to keep cities clean, writes Patti Waldmeir.</p>
+            
+            <div class="paragraph" data-paragraph="1">
+                <span class="paragraph-number">1</span>
+                <p class="paragraph-text">China is often accused of all but destroying its environment in the name of economic growth. But the same naked capitalism that has poisoned Chinese skies and waterways is hard at work in the streets of Shanghai, cleaning up the mess.</p>
+                <div class="hint">相关题目: 51, 55</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="2">
+                <span class="paragraph-number">2</span>
+                <p class="paragraph-text">China has a million strong illegal army of rubbish entrepreneurs and in Shanghai they can seem ubiquitous.</p>
+                <div class="hint">相关题目: 52</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="3">
+                <span class="paragraph-number">3</span>
+                <p class="paragraph-text">Three-wheeled bicycles piled impossibly high with 10 plastic, cardboard and Styrofoam ply the streets. Pensioners pick through rubbish bins for drinks cans, or beg empty water bottles from tourists. Grannies brave the subway at rush hour to collect commuters' discarded newspapers. Migrant workers go door to door like rag men, buying up the cast-offs of Shanghai's conspicuous consumption, designer water bottles and flat screen television boxes which would otherwise clog up the city landfills.</p>
+                <div class="hint">相关题目: 53, 54</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="4">
+                <span class="paragraph-number">4</span>
+                <p class="paragraph-text">While China's leaders bicker with environmentalists over emissions targets, it can appear that its people are quietly getting on with the task of making the planet a better place to live.</p>
+                <div class="hint">相关题目: 55</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="5">
+                <span class="paragraph-number">5</span>
+                <p class="paragraph-text">But while the government has a grand plan for the greening of China, the country's trash pickers are decidedly not part of it. During the 2008 Beijing Olympics they were largely run out of town (with disastrous consequences for city waste, as recyclables piled up on the pavements).</p>
+                <div class="hint">相关题目: 56</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="6">
+                <span class="paragraph-number">6</span>
+                <p class="paragraph-text">And recyclers in Shanghai's uber-chic French concession are already making plans to leave town during the city's six-month World Expo, which starts May 1. They are mostly unlicensed migrants without city residency documents, and therefore vulnerable to any crackdown on rubbish peddlers and to a general Expo-inspired anti-migrant campaign.</p>
+                <div class="hint">相关题目: 57</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="7">
+                <span class="paragraph-number">7</span>
+                <p class="paragraph-text">The irony of such a purge is clearly lost on the government: Expo's theme is green cities, and many Expo pavilions have been constructed with recycled materials.</p>
+                <div class="hint">相关题目: 58, 59</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="8">
+                <span class="paragraph-number">8</span>
+                <p class="paragraph-text">The past year has been tough already for China's recyclers: the global financial crises savaged rubbish prices, which still languish well below their pre-crises levels.</p>
+                <div class="hint">相关题目: 60</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="9">
+                <span class="paragraph-number">9</span>
+                <p class="paragraph-text">Cai Yan Fen has a paper and plastic recycling business on the outskirts of Shanghai, where she lives with her eight-month-old baby in a shack next to a muddy yard strewn with twisted bits of scrap metal, broken toilet seats and twine.</p>
+                <div class="hint">相关题目: 61</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="10">
+                <span class="paragraph-number">10</span>
+                <p class="paragraph-text">She says Shanghai residents stopped selling their waste during the crises, because it simply was not worth it to them.</p>
+            </div>
+            
+            <div class="paragraph" data-paragraph="11">
+                <span class="paragraph-number">11</span>
+                <p class="paragraph-text">It was a big blow to our business," she says, noting that profits have still not recovered. She now has to sell 10kg of paper to make a single renminbi profit.</p>
+                <div class="hint">相关题目: 61</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="12">
+                <span class="paragraph-number">12</span>
+                <p class="paragraph-text">But Fu Li Ping, the head of the Shanghai waste administration, has little positive to say about Shanghai's rubbish brigade, arguing that their motives have more to do with profits than the environment. Their recycling stations are eyesores that are being removed as part of the greening of Shanghai for Expo, she says, without a hint of irony.</p>
+                <div class="hint">相关题目: 62, 65</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="13">
+                <span class="paragraph-number">13</span>
+                <p class="paragraph-text">Shanghai has its own plan to encourage recycling by residents, which requires them to store recycling in their miniscule flats for a month at a time exchange for points they can redeem for recycled pencils and other trinkets online.</p>
+                <div class="hint">相关题目: 62, 63</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="14">
+                <span class="paragraph-number">14</span>
+                <p class="paragraph-text">Ms Fu hardly disputes the fact that anyone rich enough to have space in their flat for a month's worth of newspapers in one of the world's priciest property markets-probably can do without another pencil.</p>
+                <div class="hint">相关题目: 62, 63</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="15">
+                <span class="paragraph-number">15</span>
+                <p class="paragraph-text">The government has legitimate reason for concern. Though recyclers reduce the rubbish going into landfills and reduce public tensions too, since residents protest when overflowing landfills mean it must be burned the by-products of illegal recycling can be toxic and dangerous. Itinerant recyclers dismantling a laptop for scrap can often leave plenty of other waste behind when they are done.</p>
+                <div class="hint">相关题目: 64</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="16">
+                <span class="paragraph-number">16</span>
+                <p class="paragraph-text">Shanghai wants to regulate the recyclers, and even issue them with uniforms.</p>
+                <div class="hint">相关题目: 65</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="17">
+                <span class="paragraph-number">17</span>
+                <p class="paragraph-text">The government looks at these people as disorder, says Adam Minter, author of the blog Shanghai Scrap.</p>
+                <div class="hint">相关题目: 65, 66</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="18">
+                <span class="paragraph-number">18</span>
+                <p class="paragraph-text">They are like Mao's army during the Long March days: very irregular, but very efficient. The government wants to turn them into a regular army."</p>
+                <div class="hint">相关题目: 65</div>
+            </div>
+            
+            <div class="paragraph" data-paragraph="19">
+                <span class="paragraph-number">19</span>
+                <p class="paragraph-text">But that will take time, and in the meantime the government is working all-out to increase private consumption. Whatever will happen to all those boxes?</p>
+                <div class="hint">相关题目: 67, 68</div>
+            </div>
+        </div>
+        
+        <!-- 右侧问题区域 -->
+        <div class="questions-section">
+            <h2 class="section-title">阅读理解题目</h2>
+            
+            <!-- 题目会通过JavaScript动态生成 -->
+            <div id="questions-container"></div>
+            
+            <!-- 分析报告区域 -->
+            <div class="report-section" id="report-section">
+                <h2 class="report-title">分析报告</h2>
+                
+                <div class="report-summary">
+                    <p id="score-summary">得分: <span id="score-value">0</span>/68</p>
+                    <p id="performance-summary">根据您的答题情况，以下是分析报告：</p>
+                </div>
+                
+                <div class="report-category review-needed">
+                    <h3 class="category-title">需要复习的题目</h3>
+                    <div class="question-list" id="review-needed-list">
+                        <!-- 需要复习的题目会动态添加 -->
+                    </div>
+                    <p class="category-description">这些题目回答错误，建议重新阅读相关段落并理解关键信息。</p>
+                </div>
+                
+                <div class="report-category difficult">
+                    <h3 class="category-title">难点题目</h3>
+                    <div class="question-list" id="difficult-list">
+                        <!-- 难点题目会动态添加 -->
+                    </div>
+                    <p class="category-description">这些题目难度较高，需要深入理解文章内容和隐含意义。</p>
+                </div>
+                
+                <div class="report-category well-done">
+                    <h3 class="category-title">回答正确的题目</h3>
+                    <div class="question-list" id="correct-list">
+                        <!-- 正确的题目会动态添加 -->
+                    </div>
+                    <p class="category-description">这些题目回答正确，继续保持！</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 控制按钮区域 -->
+    <div class="controls-section">
+        <div class="score-display">得分: <span id="current-score">0</span>/68</div>
+        <div>
+            <button class="btn btn-danger" id="reset-btn">重置答案</button>
+            <button class="btn btn-primary" id="check-btn">检查答案</button>
+            <button class="btn btn-success" id="submit-btn">提交并查看报告</button>
+        </div>
+    </div>
+    
+    <script>
+        // 文章段落数据
+        const paragraphs = [
+            { id: 1, text: "China is often accused of all but destroying its environment in the name of economic growth. But the same naked capitalism that has poisoned Chinese skies and waterways is hard at work in the streets of Shanghai, cleaning up the mess.", relatedQuestions: [51, 55] },
+            { id: 2, text: "China has a million strong illegal army of rubbish entrepreneurs and in Shanghai they can seem ubiquitous.", relatedQuestions: [52] },
+            { id: 3, text: "Three-wheeled bicycles piled impossibly high with 10 plastic, cardboard and Styrofoam ply the streets. Pensioners pick through rubbish bins for drinks cans, or beg empty water bottles from tourists. Grannies brave the subway at rush hour to collect commuters' discarded newspapers. Migrant workers go door to door like rag men, buying up the cast-offs of Shanghai's conspicuous consumption, designer water bottles and flat screen television boxes which would otherwise clog up the city landfills.", relatedQuestions: [53, 54] },
+            { id: 4, text: "While China's leaders bicker with environmentalists over emissions targets, it can appear that its people are quietly getting on with the task of making the planet a better place to live.", relatedQuestions: [55] },
+            { id: 5, text: "But while the government has a grand plan for the greening of China, the country's trash pickers are decidedly not part of it. During the 2008 Beijing Olympics they were largely run out of town (with disastrous consequences for city waste, as recyclables piled up on the pavements).", relatedQuestions: [56] },
+            { id: 6, text: "And recyclers in Shanghai's uber-chic French concession are already making plans to leave town during the city's six-month World Expo, which starts May 1. They are mostly unlicensed migrants without city residency documents, and therefore vulnerable to any crackdown on rubbish peddlers and to a general Expo-inspired anti-migrant campaign.", relatedQuestions: [57] },
+            { id: 7, text: "The irony of such a purge is clearly lost on the government: Expo's theme is green cities, and many Expo pavilions have been constructed with recycled materials.", relatedQuestions: [58, 59] },
+            { id: 8, text: "The past year has been tough already for China's recyclers: the global financial crises savaged rubbish prices, which still languish well below their pre-crises levels.", relatedQuestions: [60] },
+            { id: 9, text: "Cai Yan Fen has a paper and plastic recycling business on the outskirts of Shanghai, where she lives with her eight-month-old baby in a shack next to a muddy yard strewn with twisted bits of scrap metal, broken toilet seats and twine.", relatedQuestions: [61] },
+            { id: 10, text: "She says Shanghai residents stopped selling their waste during the crises, because it simply was not worth it to them.", relatedQuestions: [] },
+            { id: 11, text: "It was a big blow to our business,\" she says, noting that profits have still not recovered. She now has to sell 10kg of paper to make a single renminbi profit.", relatedQuestions: [61] },
+            { id: 12, text: "But Fu Li Ping, the head of the Shanghai waste administration, has little positive to say about Shanghai's rubbish brigade, arguing that their motives have more to do with profits than the environment. Their recycling stations are eyesores that are being removed as part of the greening of Shanghai for Expo, she says, without a hint of irony.", relatedQuestions: [62, 65] },
+            { id: 13, text: "Shanghai has its own plan to encourage recycling by residents, which requires them to store recycling in their miniscule flats for a month at a time exchange for points they can redeem for recycled pencils and other trinkets online.", relatedQuestions: [62, 63] },
+            { id: 14, text: "Ms Fu hardly disputes the fact that anyone rich enough to have space in their flat for a month's worth of newspapers in one of the world's priciest property markets-probably can do without another pencil.", relatedQuestions: [62, 63] },
+            { id: 15, text: "The government has legitimate reason for concern. Though recyclers reduce the rubbish going into landfills and reduce public tensions too, since residents protest when overflowing landfills mean it must be burned the by-products of illegal recycling can be toxic and dangerous. Itinerant recyclers dismantling a laptop for scrap can often leave plenty of other waste behind when they are done.", relatedQuestions: [64] },
+            { id: 16, text: "Shanghai wants to regulate the recyclers, and even issue them with uniforms.", relatedQuestions: [65] },
+            { id: 17, text: "The government looks at these people as disorder, says Adam Minter, author of the blog Shanghai Scrap.", relatedQuestions: [65, 66] },
+            { id: 18, text: "They are like Mao's army during the Long March days: very irregular, but very efficient. The government wants to turn them into a regular army.\"", relatedQuestions: [65] },
+            { id: 19, text: "But that will take time, and in the meantime the government is working all-out to increase private consumption. Whatever will happen to all those boxes?", relatedQuestions: [67, 68] }
+        ];
+
+        // 题目数据
+        const questions = [
+            { id: 51, text: "According to paragraph 1, what is China accused of?", type: "multiple-choice", options: ["naked capitalism", "destruction of the environment", "putting the economy before the environment", "hiding its environmental mess"], correctAnswer: 1, points: 2, paragraph: 1 },
+            { id: 52, text: "According to paragraph 2, which one of the following statements is TRUE?", type: "multiple-choice", options: ["There are 10 million rubbish collectors in Shanghai.", "The army is working with rubbish collectors to clean up Shanghai.", "The rubbish collectors in Shanghai are treated like entrepreneurs.", "The rubbish collectors in Shanghai seem to be everywhere."], correctAnswer: 3, points: 2, paragraph: 2 },
+            { id: 53, text: "What does 'ply' in line 10 mean?", type: "multiple-choice", options: ["to carry on, pursue or work at (a job, trade etc.)", "to sell (goods, wares etc.) especially at a regular place", "to provide repeatedly or persistently", "to travel regularly along (a route) or in (an area)"], correctAnswer: 3, points: 2, paragraph: 3 },
+            { id: 54, text: "What are 'cast-offs' (line 15)?", type: "multiple-choice", options: ["designer goods", "counterfeit goods", "second hand goods", "goods no longer desired"], correctAnswer: 3, points: 2, paragraph: 3 },
+            { id: 55, text: "What message is implied in paragraph 4?", type: "multiple-choice", options: ["China's leaders are working with environmentalists to achieve emission targets.", "The government, environmentalists and people should work together to make the planet a better place to live.", "The people are doing a better job than the government in cleaning up the environment.", "The people would prefer to quietly get on with their lives than clean up the environment."], correctAnswer: 2, points: 3, paragraph: 4 },
+            { id: 56, text: "Why do you think the recyclers were run out of town during the Beijing Olympics?", type: "short-answer", correctAnswer: "The government wanted to present a clean, modern image for the Olympics and viewed the recyclers as disorderly or unsightly.", points: 3, paragraph: 5 },
+            { id: 57, text: "Find words in paragraph 6 which could be replaced by the following: (2 marks)", type: "two-part", parts: ["a) very fashionable", "b) likely to suffer from"], correctAnswers: ["uber-chic", "vulnerable"], points: 2, paragraph: 6 },
+            { id: 58, text: "What two things does 'such a purge' (line 36) refer to? (2 marks)", type: "two-part", parts: ["a)", "b)"], correctAnswers: ["crackdown on rubbish peddlers", "Expo-inspired anti-migrant campaign"], points: 2, paragraph: 7 },
+            { id: 59, text: "Explain the irony in paragraph 7. (2 marks)", type: "short-answer", correctAnswer: "The Expo's theme is 'green cities' and pavilions are made from recycled materials, yet the government is driving away the very people who help with recycling.", points: 2, paragraph: 7 },
+            { id: 60, text: "What does 'their' in line 42 refer to?", type: "short-answer", correctAnswer: "rubbish prices", points: 1, paragraph: 8 },
+            { id: 61, text: "What was the 'big blow' (line 52) to Cai Yan Fen's business?", type: "multiple-choice", options: ["She lost money and her home.", "She is unable to buy enough paper to make a profit.", "She has to sell more paper at a higher price.", "Shanghai residents stopped selling their waste during the financial crisis because prices were too low."], correctAnswer: 3, points: 2, paragraph: 9 },
+            { id: 62, text: "How does Fu Li Ping feel about Shanghai's plan to encourage residents to recycle?", type: "multiple-choice", options: ["She fully supports it.", "She strongly disputes it.", "She acknowledges its shortcomings.", "She has no strong feelings either way."], correctAnswer: 2, points: 2, paragraph: 12 },
+            { id: 63, text: "From the text, identify TWO problems with Shanghai's plan for recycling. (2 marks)", type: "two-part", parts: ["a)", "b)"], correctAnswers: ["Residents have very small flats with no space to store recyclables for a month.", "The rewards (pencils and trinkets) are not appealing to wealthy residents."], points: 2, paragraph: 13 },
+            { id: 64, text: "Does illegal recycling pose any risks? Give TWO examples from the text. (2 marks)", type: "two-part", parts: ["a)", "b)"], correctAnswers: ["The by-products of illegal recycling can be toxic and dangerous.", "Recyclers can leave behind other waste when dismantling items like laptops."], points: 2, paragraph: 15 },
+            { id: 65, text: "a) What future plans does the government have for the unlicensed rubbish collectors? (2 marks) b) The writer uses different names for the recyclers. What do the following names convey about the recyclers? (2 marks)", type: "mixed", parts: ["i)", "ii)", "i) rubbish entrepreneurs (line 7)", "ii) rubbish brigade (line 58)"], correctAnswers: ["Regulate them", "Issue them with uniforms", "Suggests they are business-minded and independent", "Suggests they are an organized but possibly unofficial group"], points: 4, paragraph: 16 },
+            { id: 66, text: "Complete the table below. (9 marks)", type: "table", correctAnswers: {"Fu Li Ping": {"Job": "Head of Shanghai waste administration", "Opinion": "A", "Speech": "B"}, "Adam Minter": {"Job": "Author of Shanghai Scrap blog", "Opinion": "F", "Speech": "C"}, "Cai Yan Fen": {"Job": "Paper and plastic recycler", "Opinion": "F", "Speech": "A"}}, points: 9, paragraph: 17 },
+            { id: 67, text: "What is the tone of the author's final line, 'Whatever will happen to all those boxes' (lines 90-91)?", type: "multiple-choice", options: ["indifferent", "sarcastic", "sympathetic", "angry"], correctAnswer: 1, points: 2, paragraph: 19 },
+            { id: 68, text: "Look at the title. What does 'face scrapheap' suggest will happen to the irregular recyclers?", type: "short-answer", correctAnswer: "They will become obsolete or discarded, like scrap, as the government formalizes recycling or they are forced out of business.", points: 2, paragraph: 19 }
+        ];
+
+        // 用户答案存储
+        let userAnswers = {};
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            renderQuestions();
+            setupEventListeners();
+            initializeAnswers();
+        });
+        
+        // 渲染所有题目
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            
+            questions.forEach(question => {
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question-container';
+                questionElement.id = `question-${question.id}`;
+                questionElement.dataset.questionId = question.id;
+                questionElement.dataset.paragraph = question.paragraph;
+                
+                let optionsHTML = '';
+                let inputHTML = '';
+                
+                if (question.type === 'multiple-choice') {
+                    optionsHTML = '<div class="options-container">';
+                    question.options.forEach((option, index) => {
+                        optionsHTML += `
+                            <div class="option" data-option="${index}">
+                                ${String.fromCharCode(65 + index)}. ${option}
+                            </div>
+                        `;
+                    });
+                    optionsHTML += '</div>';
+                } else if (question.type === 'short-answer') {
+                    inputHTML = `<input type="text" class="input-answer" id="answer-${question.id}" placeholder="请输入您的答案">`;
+                } else if (question.type === 'two-part') {
+                    inputHTML = `
+                        <div>
+                            <p>${question.parts[0]}</p>
+                            <input type="text" class="input-answer" id="answer-${question.id}-a" placeholder="请输入答案">
+                            <p>${question.parts[1]}</p>
+                            <input type="text" class="input-answer" id="answer-${question.id}-b" placeholder="请输入答案">
+                        </div>
+                    `;
+                } else if (question.type === 'mixed') {
+                    inputHTML = `
+                        <div>
+                            <p>a) What future plans does the government have for the unlicensed rubbish collectors?</p>
+                            <p>i) <input type="text" class="input-answer" id="answer-${question.id}-1" placeholder="请输入答案"></p>
+                            <p>ii) <input type="text" class="input-answer" id="answer-${question.id}-2" placeholder="请输入答案"></p>
+                            <p>b) The writer uses different names for the recyclers. What do the following names convey about the recyclers?</p>
+                            <p>i) rubbish entrepreneurs (line 7) <input type="text" class="input-answer" id="answer-${question.id}-3" placeholder="请输入答案"></p>
+                            <p>ii) rubbish brigade (line 58) <input type="text" class="input-answer" id="answer-${question.id}-4" placeholder="请输入答案"></p>
+                        </div>
+                    `;
+                } else if (question.type === 'table') {
+                    inputHTML = `
+                        <div>
+                            <p>请完成表格：</p>
+                            <table style="width:100%; border-collapse: collapse; margin-top:10px;">
+                                <thead>
+                                    <tr style="background-color:#f2f2f2;">
+                                        <th style="padding:10px; border:1px solid #ddd;">Person</th>
+                                        <th style="padding:10px; border:1px solid #ddd;">Job</th>
+                                        <th style="padding:10px; border:1px solid #ddd;">Opinion (F/A/NG)</th>
+                                        <th style="padding:10px; border:1px solid #ddd;">Speech Bubble (A/B/C)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding:10px; border:1px solid #ddd;">Fu Li Ping</td>
+                                        <td style="padding:10px; border:1px solid #ddd;"><input type="text" class="input-answer" id="answer-${question.id}-job1" placeholder="工作" style="width:100%;"></td>
+                                        <td style="padding:10px; border:1px solid #ddd;"><input type="text" class="input-answer" id="answer-${question.id}-opinion1" placeholder="F/A/NG" style="width:100%;"></td>
+                                        <td style="padding:10px; border:1px solid #ddd;"><input type="text" class="input-answer" id="answer-${question.id}-speech1" placeholder="A/B/C" style="width:100%;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:10px; border:1px solid #ddd;">Adam Minter</td>
+                                        <td style="padding:10px; border:1px solid #ddd;"><input type="text" class="input-answer" id="answer-${question.id}-job2" placeholder="工作" style="width:100%;"></td>
+                                        <td style="padding:10px; border:1px solid #ddd;"><input type="text" class="input-answer" id="answer-${question.id}-opinion2" placeholder="F/A/NG" style="width:100%;"></td>
+                                        <td style="padding:10px; border:1px solid #ddd;"><input type="text" class="input-answer" id="answer-${question.id}-speech2" placeholder="A/B/C" style="width:100%;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:10px; border:1px solid #ddd;">Cai Yan Fen</td>
+                                        <td style="padding:10px; border:1px solid #ddd;"><input type="text" class="input-answer" id="answer-${question.id}-job3" placeholder="工作" style="width:100%;"></td>
+                                        <td style="padding:10px; border:1px solid #ddd;"><input type="text" class="input-answer" id="answer-${question.id}-opinion3" placeholder="F/A/NG" style="width:100%;"></td>
+                                        <td style="padding:10px; border:1px solid #ddd;"><input type="text" class="input-answer" id="answer-${question.id}-speech3" placeholder="A/B/C" style="width:100%;"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                questionElement.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">题目 ${question.id}</div>
+                        <div class="question-type">分值: ${question.points}</div>
+                    </div>
+                    <div class="question-text">${question.text}</div>
+                    ${optionsHTML}
+                    ${inputHTML}
+                `;
+                
+                container.appendChild(questionElement);
+            });
+            
+            // 为选择题添加事件监听
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionContainer = this.closest('.question-container');
+                    const questionId = parseInt(questionContainer.dataset.questionId);
+                    
+                    // 清除同一问题的其他选项
+                    questionContainer.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // 选中当前选项
+                    this.classList.add('selected');
+                    
+                    // 保存答案
+                    userAnswers[questionId] = parseInt(this.dataset.option);
+                    
+                    // 更新分数显示
+                    updateScoreDisplay();
+                });
+            });
+            
+            // 为输入框添加事件监听
+            document.querySelectorAll('.input-answer').forEach(input => {
+                input.addEventListener('input', function() {
+                    const questionContainer = this.closest('.question-container');
+                    const questionId = parseInt(questionContainer.dataset.questionId);
+                    
+                    // 保存答案
+                    if (!userAnswers[questionId]) {
+                        userAnswers[questionId] = {};
+                    }
+                    
+                    // 根据输入框ID保存答案
+                    const inputId = this.id;
+                    if (inputId.includes('-a')) {
+                        userAnswers[questionId].a = this.value;
+                    } else if (inputId.includes('-b')) {
+                        userAnswers[questionId].b = this.value;
+                    } else if (inputId.includes('-1')) {
+                        userAnswers[questionId].part1 = this.value;
+                    } else if (inputId.includes('-2')) {
+                        userAnswers[questionId].part2 = this.value;
+                    } else if (inputId.includes('-3')) {
+                        userAnswers[questionId].part3 = this.value;
+                    } else if (inputId.includes('-4')) {
+                        userAnswers[questionId].part4 = this.value;
+                    } else if (inputId.includes('-job')) {
+                        const personNum = inputId.split('-job')[1];
+                        if (!userAnswers[questionId].table) userAnswers[questionId].table = {};
+                        if (!userAnswers[questionId].table[`person${personNum}`]) userAnswers[questionId].table[`person${personNum}`] = {};
+                        userAnswers[questionId].table[`person${personNum}`].job = this.value;
+                    } else if (inputId.includes('-opinion')) {
+                        const personNum = inputId.split('-opinion')[1];
+                        if (!userAnswers[questionId].table) userAnswers[questionId].table = {};
+                        if (!userAnswers[questionId].table[`person${personNum}`]) userAnswers[questionId].table[`person${personNum}`] = {};
+                        userAnswers[questionId].table[`person${personNum}`].opinion = this.value;
+                    } else if (inputId.includes('-speech')) {
+                        const personNum = inputId.split('-speech')[1];
+                        if (!userAnswers[questionId].table) userAnswers[questionId].table = {};
+                        if (!userAnswers[questionId].table[`person${personNum}`]) userAnswers[questionId].table[`person${personNum}`] = {};
+                        userAnswers[questionId].table[`person${personNum}`].speech = this.value;
+                    } else {
+                        userAnswers[questionId] = this.value;
+                    }
+                    
+                    // 更新分数显示
+                    updateScoreDisplay();
+                });
+            });
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 段落点击事件
+            document.querySelectorAll('.paragraph-number').forEach(number => {
+                number.addEventListener('click', function() {
+                    const paragraph = this.closest('.paragraph');
+                    const paragraphNum = parseInt(paragraph.dataset.paragraph);
+                    
+                    // 显示提示
+                    const hint = paragraph.querySelector('.hint');
+                    hint.style.display = hint.style.display === 'block' ? 'none' : 'block';
+                    
+                    // 高亮相关题目
+                    highlightRelatedQuestions(paragraphNum);
+                });
+            });
+            
+            // 检查答案按钮
+            document.getElementById('check-btn').addEventListener('click', function() {
+                checkAnswers(false);
+            });
+            
+            // 提交按钮
+            document.getElementById('submit-btn').addEventListener('click', function() {
+                checkAnswers(true);
+                showReport();
+            });
+            
+            // 重置按钮
+            document.getElementById('reset-btn').addEventListener('click', function() {
+                if (confirm('确定要重置所有答案吗？')) {
+                    resetAnswers();
+                }
+            });
+        }
+        
+        // 初始化答案存储
+        function initializeAnswers() {
+            questions.forEach(question => {
+                if (question.type === 'multiple-choice') {
+                    userAnswers[question.id] = null;
+                } else if (question.type === 'two-part' || question.type === 'mixed') {
+                    userAnswers[question.id] = {};
+                } else if (question.type === 'table') {
+                    userAnswers[question.id] = { table: {} };
+                } else {
+                    userAnswers[question.id] = '';
+                }
+            });
+        }
+        
+        // 高亮相关题目
+        function highlightRelatedQuestions(paragraphNum) {
+            // 移除之前的高亮
+            document.querySelectorAll('.question-container').forEach(container => {
+                container.classList.remove('highlighted');
+            });
+            
+            // 找到相关题目并高亮
+            questions.forEach(question => {
+                if (question.paragraph === paragraphNum) {
+                    const questionElement = document.getElementById(`question-${question.id}`);
+                    if (questionElement) {
+                        questionElement.classList.add('highlighted');
+                        
+                        // 滚动到该题目
+                        questionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+        }
+        
+        // 检查答案
+        function checkAnswers(showAll) {
+            let totalScore = 0;
+            let maxScore = 0;
+            
+            questions.forEach(question => {
+                const userAnswer = userAnswers[question.id];
+                const questionElement = document.getElementById(`question-${question.id}`);
+                let isCorrect = false;
+                let score = 0;
+                
+                // 计算最大分数
+                maxScore += question.points;
+                
+                if (question.type === 'multiple-choice') {
+                    const options = questionElement.querySelectorAll('.option');
+                    options.forEach(option => {
+                        option.classList.remove('correct', 'incorrect');
+                    });
+                    
+                    if (userAnswer !== null && userAnswer !== undefined) {
+                        const selectedOption = questionElement.querySelector(`.option[data-option="${userAnswer}"]`);
+                        
+                        if (selectedOption) {
+                            if (userAnswer === question.correctAnswer) {
+                                selectedOption.classList.add('correct');
+                                isCorrect = true;
+                                score = question.points;
+                            } else {
+                                selectedOption.classList.add('incorrect');
+                                // 显示正确答案
+                                if (showAll) {
+                                    const correctOption = questionElement.querySelector(`.option[data-option="${question.correctAnswer}"]`);
+                                    if (correctOption) {
+                                        correctOption.classList.add('correct');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if (question.type === 'short-answer') {
+                    const input = questionElement.querySelector('.input-answer');
+                    if (input && userAnswer && userAnswer.trim() !== '') {
+                        // 简答题简单检查，实际应用中需要更复杂的逻辑
+                        if (showAll) {
+                            input.value = userAnswer;
+                            // 添加一个提示显示正确答案
+                            const correctAnswerDiv = document.createElement('div');
+                            correctAnswerDiv.className = 'hint';
+                            correctAnswerDiv.textContent = `参考答案: ${question.correctAnswer}`;
+                            correctAnswerDiv.style.marginTop = '10px';
+                            questionElement.appendChild(correctAnswerDiv);
+                        }
+                        // 简答题通常需要人工评分，这里默认给分
+                        score = question.points;
+                        isCorrect = true;
+                    }
+                } else if (question.type === 'two-part') {
+                    // 两部分问题，简化处理
+                    if (userAnswer && userAnswer.a && userAnswer.b) {
+                        score = question.points;
+                        isCorrect = true;
+                    }
+                } else if (question.type === 'mixed' || question.type === 'table') {
+                    // 复杂问题，简化处理
+                    if (userAnswer && Object.keys(userAnswer).length > 0) {
+                        score = question.points;
+                        isCorrect = true;
+                    }
+                }
+                
+                totalScore += score;
+                
+                // 记录题目状态
+                question.userScore = score;
+                question.isCorrect = isCorrect;
+                question.maxScore = question.points;
+            });
+            
+            // 更新分数显示
+            document.getElementById('current-score').textContent = totalScore;
+            
+            return { totalScore, maxScore };
+        }
+        
+        // 显示分析报告
+        function showReport() {
+            const result = checkAnswers(true);
+            const reportSection = document.getElementById('report-section');
+            reportSection.style.display = 'block';
+            
+            // 更新分数摘要
+            document.getElementById('score-value').textContent = `${result.totalScore}/${result.maxScore}`;
+            
+            // 分类题目
+            const reviewNeededList = document.getElementById('review-needed-list');
+            const difficultList = document.getElementById('difficult-list');
+            const correctList = document.getElementById('correct-list');
+            
+            reviewNeededList.innerHTML = '';
+            difficultList.innerHTML = '';
+            correctList.innerHTML = '';
+            
+            // 定义难点题目（根据ID）
+            const difficultQuestions = [55, 59, 63, 65, 66, 67, 68];
+            
+            questions.forEach(question => {
+                const badge = document.createElement('span');
+                badge.className = 'question-badge';
+                badge.textContent = `Q${question.id}`;
+                badge.addEventListener('click', function() {
+                    document.getElementById(`question-${question.id}`).scrollIntoView({ behavior: 'smooth' });
+                });
+                
+                if (!question.isCorrect) {
+                    reviewNeededList.appendChild(badge);
+                } else if (difficultQuestions.includes(question.id)) {
+                    difficultList.appendChild(badge);
+                } else {
+                    correctList.appendChild(badge);
+                }
+            });
+            
+            // 滚动到报告区域
+            reportSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 重置答案
+        function resetAnswers() {
+            // 重置用户答案
+            initializeAnswers();
+            
+            // 清除所有选择
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // 清除输入框
+            document.querySelectorAll('.input-answer').forEach(input => {
+                input.value = '';
+            });
+            
+            // 清除报告
+            document.getElementById('report-section').style.display = 'none';
+            
+            // 清除提示
+            document.querySelectorAll('.hint').forEach(hint => {
+                hint.style.display = 'none';
+            });
+            
+            // 重置分数显示
+            document.getElementById('current-score').textContent = '0';
+            
+            // 清除题目状态
+            questions.forEach(question => {
+                question.userScore = 0;
+                question.isCorrect = false;
+            });
+        }
+        
+        // 更新分数显示
+        function updateScoreDisplay() {
+            // 在实际应用中，这里可以实时计算分数
+            // 但为了性能，我们只在检查答案时计算
+        }
+    </script>
+</body>
+</html>
