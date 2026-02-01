@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Collection Front Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-box {
+            flex-grow: 1;
+            position: relative;
+            max-width: 400px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 1px solid #ddd;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.2);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: #f0f4f8;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .filter-btn:hover {
+            background-color: #e1e8f0;
+        }
+        
+        .filter-btn.active {
+            background-color: #2a5298;
+            color: white;
+        }
+        
+        .article-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .article-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .article-year {
+            background-color: #2a5298;
+            color: white;
+            padding: 8px 15px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .article-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .article-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #1e3c72;
+            line-height: 1.4;
+        }
+        
+        .article-type {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: #f0f7ff;
+            color: #2a5298;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+        
+        .article-description {
+            color: #555;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+        
+        .article-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #2a5298;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+        
+        .article-link:hover {
+            background-color: #1e3c72;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2a5298;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+            
+            .article-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Article Collection</h1>
+            <p class="subtitle">A curated collection of 23 articles from 2012 to 2025 covering topics from literature and culture to science and technology</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">23</div>
+                <div class="stat-label">Total Articles</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">14</div>
+                <div class="stat-label">Years Covered</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">13</div>
+                <div class="stat-label">Literature & Culture</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Science & Tech</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search articles by title, year, or topic...">
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Articles</button>
+                <button class="filter-btn" data-filter="literature">Literature & Culture</button>
+                <button class="filter-btn" data-filter="science">Science & Tech</button>
+                <button class="filter-btn" data-filter="recent">Recent (2020+)</button>
+            </div>
+        </div>
+        
+        <div class="article-grid" id="articleGrid">
+            <!-- Articles will be dynamically inserted here -->
+        </div>
+        
+        <footer>
+            <p>Article Collection Front Page &copy; 2023 | Use the search and filter tools to explore 23 articles</p>
+        </footer>
+    </div>
+
+    <script>
+        // Article data with descriptions
+        const articles = [
+            {
+                id: 1,
+                title: "China's army of irregular recyclers face scrapheap",
+                year: 2012,
+                type: "pp",
+                category: "science",
+                description: "Exploring the challenges faced by informal recyclers in China's growing waste management industry."
+            },
+            {
+                id: 2,
+                title: "The Call of the Wild",
+                year: 2012,
+                type: "pp",
+                category: "literature",
+                description: "An analysis of wilderness themes in contemporary literature and their cultural significance."
+            },
+            {
+                id: 3,
+                title: "The Choosing Boys - the classroom time bomb",
+                year: 2012,
+                type: "sp",
+                category: "science",
+                description: "Examining educational disparities and their long-term impacts on young male students."
+            },
+            {
+                id: 4,
+                title: "Book Publishers Weekly",
+                year: 2012,
+                type: "publication",
+                category: "literature",
+                description: "Annual review of trends, challenges, and innovations in the book publishing industry."
+            },
+            {
+                id: 5,
+                title: "The Chinese Mom Backslash",
+                year: 2012,
+                type: "cultural",
+                category: "literature",
+                description: "Cultural analysis of parenting styles and societal expectations in modern China."
+            },
+            {
+                id: 6,
+                title: "The Triumph of Dystopian Literature",
+                year: 2013,
+                type: "literary",
+                category: "literature",
+                description: "Exploring the rise and popularity of dystopian themes in 21st century literature."
+            },
+            {
+                id: 7,
+                title: "Celebrity",
+                year: 2014,
+                type: "cultural",
+                category: "literature",
+                description: "A critical examination of celebrity culture and its impact on society and individual identity."
+            },
+            {
+                id: 8,
+                title: "Young Minds in Critical Condition",
+                year: 2015,
+                type: "educational",
+                category: "science",
+                description: "Investigating the mental health crisis among students in competitive academic environments."
+            },
+            {
+                id: 9,
+                title: "Mexicue Moves Beyond the Food Truck",
+                year: 2016,
+                type: "culinary",
+                category: "literature",
+                description: "The evolution of fusion cuisine from mobile food services to established restaurant culture."
+            },
+            {
+                id: 10,
+                title: "America's Worst Food Trends",
+                year: 2016,
+                type: "culinary",
+                category: "literature",
+                description: "A critical look at questionable food trends that have captured the American culinary scene."
+            },
+            {
+                id: 11,
+                title: "Movable Feasts",
+                year: 2016,
+                type: "culinary",
+                category: "literature",
+                description: "Exploring the cultural significance of food festivals and temporary dining experiences."
+            },
+            {
+                id: 12,
+                title: "Millennials - Themes in the Literature",
+                year: 2017,
+                type: "literary",
+                category: "literature",
+                description: "Analysis of how millennial experiences and values are reflected in contemporary writing."
+            },
+            {
+                id: 13,
+                title: "Farmers Resort to Hand Pollination",
+                year: 2018,
+                type: "environmental",
+                category: "science",
+                description: "Examining agricultural challenges and innovative solutions in the face of declining pollinator populations."
+            },
+            {
+                id: 14,
+                title: "Sweetness and Light",
+                year: 2018,
+                type: "cultural",
+                category: "literature",
+                description: "A study of utopian ideals in modern literature and their philosophical underpinnings."
+            },
+            {
+                id: 15,
+                title: "Excerpt from the autobiography of Clive James",
+                year: 2019,
+                type: "memoir",
+                category: "literature",
+                description: "Reflections on life, literature, and culture from the acclaimed writer and broadcaster."
+            },
+            {
+                id: 16,
+                title: "Graham Norton: 'The letters I can never forget'",
+                year: 2020,
+                type: "memoir",
+                category: "literature",
+                description: "Personal reflections on correspondence that has shaped perspectives and memories."
+            },
+            {
+                id: 17,
+                title: "NASA Report 1",
+                year: 2021,
+                type: "scientific",
+                category: "science",
+                description: "Findings from NASA's ongoing research into space exploration technologies and discoveries."
+            },
+            {
+                id: 18,
+                title: "NASA Report 2",
+                year: 2021,
+                type: "scientific",
+                category: "science",
+                description: "Continuation of NASA's annual reporting on space missions and astronomical discoveries."
+            },
+            {
+                id: 19,
+                title: "NASA Report 3",
+                year: 2021,
+                type: "scientific",
+                category: "science",
+                description: "Additional insights from NASA's research programs and their implications for future exploration."
+            },
+            {
+                id: 20,
+                title: "Ethical concerns mount as AI takes bigger decision in more industries",
+                year: 2022,
+                type: "technology",
+                category: "science",
+                description: "Examining the ethical implications of artificial intelligence integration across various sectors."
+            },
+            {
+                id: 21,
+                title: "Michelle Obama",
+                year: 2023,
+                type: "biographical",
+                category: "literature",
+                description: "An in-depth look at the life, influence, and legacy of the former First Lady."
+            },
+            {
+                id: 22,
+                title: "Bad Science",
+                year: 2024,
+                type: "scientific",
+                category: "science",
+                description: "Critical analysis of scientific misinformation and how to identify flawed research methodologies."
+            },
+            {
+                id: 23,
+                title: "Quiet Quitting",
+                year: 2025,
+                type: "sociological",
+                category: "science",
+                description: "Exploring the phenomenon of workplace disengagement and its implications for modern employment."
+            }
+        ];
+        
+        // DOM elements
+        const articleGrid = document.getElementById('articleGrid');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const searchInput = document.getElementById('searchInput');
+        
+        // Type labels for display
+        const typeLabels = {
+            'pp': 'Report',
+            'sp': 'Special Report',
+            'publication': 'Publication',
+            'cultural': 'Cultural Analysis',
+            'literary': 'Literary Analysis',
+            'educational': 'Educational',
+            'culinary': 'Culinary',
+            'environmental': 'Environmental',
+            'memoir': 'Memoir',
+            'scientific': 'Scientific Report',
+            'technology': 'Technology',
+            'biographical': 'Biographical',
+            'sociological': 'Sociological'
+        };
+        
+        // Initialize the page with all articles
+        function renderArticles(articlesToRender) {
+            articleGrid.innerHTML = '';
+            
+            if (articlesToRender.length === 0) {
+                articleGrid.innerHTML = '<div class="no-results">No articles found. Try adjusting your search or filter.</div>';
+                return;
+            }
+            
+            articlesToRender.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = 'article-card';
+                articleCard.dataset.category = article.category;
+                articleCard.dataset.year = article.year;
+                
+                articleCard.innerHTML = `
+                    <div class="article-year">${article.year}</div>
+                    <div class="article-content">
+                        <div class="article-type">${typeLabels[article.type] || article.type}</div>
+                        <h3 class="article-title">${article.title}</h3>
+                        <p class="article-description">${article.description}</p>
+                        <a href="#" class="article-link" data-id="${article.id}">Read Article</a>
+                    </div>
+                `;
+                
+                articleGrid.appendChild(articleCard);
+            });
+            
+            // Add click event to article links
+            document.querySelectorAll('.article-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const articleId = this.getAttribute('data-id');
+                    const article = articles.find(a => a.id == articleId);
+                    alert(`You clicked on: "${article.title}"\n\nThis would navigate to the full article page in a complete implementation.`);
+                });
+            });
+        }
+        
+        // Filter articles based on selected filter
+        function filterArticles(filter) {
+            let filteredArticles = [...articles];
+            
+            if (filter === 'literature') {
+                filteredArticles = articles.filter(article => article.category === 'literature');
+            } else if (filter === 'science') {
+                filteredArticles = articles.filter(article => article.category === 'science');
+            } else if (filter === 'recent') {
+                filteredArticles = articles.filter(article => article.year >= 2020);
+            }
+            // 'all' filter keeps all articles
+            
+            return filteredArticles;
+        }
+        
+        // Search articles based on input
+        function searchArticles(query) {
+            if (!query.trim()) {
+                return [...articles];
+            }
+            
+            const searchTerm = query.toLowerCase();
+            return articles.filter(article => 
+                article.title.toLowerCase().includes(searchTerm) ||
+                article.description.toLowerCase().includes(searchTerm) ||
+                article.year.toString().includes(searchTerm) ||
+                typeLabels[article.type].toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderArticles(articles);
+            
+            // Filter button event listeners
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Get filter
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Combine search and filter
+                    let filteredArticles = filterArticles(filter);
+                    
+                    // Apply search if there's a query
+                    const searchQuery = searchInput.value;
+                    if (searchQuery) {
+                        filteredArticles = searchArticles(searchQuery).filter(article => 
+                            filteredArticles.includes(article)
+                        );
+                    }
+                    
+                    renderArticles(filteredArticles);
+                });
+            });
+            
+            // Search input event listener
+            searchInput.addEventListener('input', function() {
+                const query = this.value;
+                const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+                
+                // Get filtered articles
+                let filteredArticles = filterArticles(activeFilter);
+                
+                // Apply search
+                if (query) {
+                    filteredArticles = searchArticles(query).filter(article => 
+                        filteredArticles.includes(article)
+                    );
+                }
+                
+                renderArticles(filteredArticles);
+            });
+            
+            // Add some initial search text to demonstrate
+            searchInput.value = "";
+        });
+    </script>
+</body>
+</html>
